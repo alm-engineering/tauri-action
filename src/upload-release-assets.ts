@@ -55,6 +55,7 @@ export async function uploadAssets(releaseId: number, assets: Artifact[]) {
       owner: context.repo.owner,
       repo: context.repo.repo,
       release_id: releaseId,
+      label: asset.arch, // Use architecture name as asset label
     });
   }
 }

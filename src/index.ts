@@ -148,10 +148,6 @@ async function run(): Promise<void> {
         }
       }
 
-      console.log('releaseId', releaseId);
-      console.log('artifacts', JSON.stringify(artifacts, null, 2));
-      console.log('process.env', process.env);
-
       // THIS IS NEW
       // We need to sign the windows msi installer
       if (targetInfo.platform === 'windows') {
@@ -178,8 +174,6 @@ async function run(): Promise<void> {
         );
 
         console.log('Signing msi...');
-        // const signingCmd = `AzureSignTool sign -kvu ${AZURE_KEY_VAULT_URI!} -kvi ${AZURE_CLIENT_ID!} -kvt ${AZURE_TENANT_ID!} -kvs ${AZURE_CLIENT_SECRET!} -kvc ${AZURE_CERT_NAME!} -tr http://timestamp.digicert.com -v ${msiArtifact} -d ${AZURE_DESCRIPTION!}`;
-        // console.log('Signing command: ', signingCmd);
         console.log(
           (
             await execa('AzureSignTool', [
