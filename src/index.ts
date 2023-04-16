@@ -1,9 +1,9 @@
 import { existsSync } from 'fs';
-import { platform } from 'os';
 import { join, resolve, dirname, basename } from 'path';
 
 import * as core from '@actions/core';
 import stringArgv from 'string-argv';
+import { $ } from 'execa';
 
 import { createRelease } from './create-release';
 import { uploadAssets as uploadReleaseAssets } from './upload-release-assets';
@@ -148,13 +148,37 @@ async function run(): Promise<void> {
         }
       }
 
-      console.log("releaseId", releaseId)
-      console.log("artifacts", JSON.stringify(artifacts, null, 2))
-      console.log("process.env", process.env)
+      console.log('releaseId', releaseId);
+      console.log('artifacts', JSON.stringify(artifacts, null, 2));
+      console.log('process.env', process.env);
 
+      // THIS IS NEW
+      // We need to sign the windows msi installer
       if (targetInfo.platform === 'windows') {
-        console.log("platform is windows")
+        console.log('platform is windows');
 
+        const msiArtifact = artifacts.find((artifact) =>
+          artifact.path.endsWith('msi')
+        );
+
+        const {
+          AZURE_KEY_VAULT_URI,
+          AZURE_CLIENT_ID,
+          AZURE_CLIENT_SECRET,
+          AZURE_CERT_NAME,
+          AZURE_TENANT_ID,
+          AZURE_DESCRIPTION,
+        } = process.env;
+
+        console.log('Installing dotNet azure code signing tool...');
+        console.log(
+          (await $`dotnet tool install --global AzureSignTool`).stdout
+        );
+
+        console.log('Signing msi...');
+        const signingCmd = `AzureSignTool sign -kvu "${AZURE_KEY_VAULT_URI!}" -kvi "${AZURE_CLIENT_ID!}" -kvt "${AZURE_TENANT_ID!}"-kvs "${AZURE_CLIENT_SECRET!}" -kvc "${AZURE_CERT_NAME!}" -tr http://timestamp.digicert.com -v "${msiArtifact}" -d "${AZURE_DESCRIPTION!}"`;
+        console.log('Signing command: ', signingCmd);
+        console.log((await $`${signingCmd}`).stdout);
       }
 
       await uploadReleaseAssets(releaseId, artifacts);

@@ -13,8 +13,9 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['prettier', '@typescript-eslint'],
   rules: {
+    'prettier/prettier': 'error',
     '@typescript-eslint/ban-ts-comment': 'off',
   },
 };
