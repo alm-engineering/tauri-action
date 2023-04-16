@@ -148,6 +148,15 @@ async function run(): Promise<void> {
         }
       }
 
+      console.log("releaseId", releaseId)
+      console.log("artifacts", JSON.stringify(artifacts, null, 2))
+      console.log("process.env", process.env)
+
+      if (targetInfo.platform === 'windows') {
+        console.log("platform is windows")
+
+      }
+
       await uploadReleaseAssets(releaseId, artifacts);
 
       if (includeUpdaterJson) {
