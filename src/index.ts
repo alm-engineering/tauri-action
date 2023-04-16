@@ -3,7 +3,7 @@ import { join, resolve, dirname, basename } from 'path';
 
 import * as core from '@actions/core';
 import stringArgv from 'string-argv';
-import { $ } from 'execa';
+import { $, execa } from 'execa';
 
 import { createRelease } from './create-release';
 import { uploadAssets as uploadReleaseAssets } from './upload-release-assets';
@@ -178,9 +178,31 @@ async function run(): Promise<void> {
         );
 
         console.log('Signing msi...');
-        const signingCmd = `AzureSignTool sign -kvu ${AZURE_KEY_VAULT_URI!} -kvi ${AZURE_CLIENT_ID!} -kvt ${AZURE_TENANT_ID!}-kvs ${AZURE_CLIENT_SECRET!} -kvc ${AZURE_CERT_NAME!} -tr http://timestamp.digicert.com -v ${msiArtifact} -d ${AZURE_DESCRIPTION!}`;
-        console.log('Signing command: ', signingCmd);
-        console.log((await $`${signingCmd}`).stdout);
+        // const signingCmd = `AzureSignTool sign -kvu ${AZURE_KEY_VAULT_URI!} -kvi ${AZURE_CLIENT_ID!} -kvt ${AZURE_TENANT_ID!} -kvs ${AZURE_CLIENT_SECRET!} -kvc ${AZURE_CERT_NAME!} -tr http://timestamp.digicert.com -v ${msiArtifact} -d ${AZURE_DESCRIPTION!}`;
+        // console.log('Signing command: ', signingCmd);
+        console.log(
+          (
+            await execa('AzureSignTool', [
+              'sign',
+              '-kvu',
+              AZURE_KEY_VAULT_URI!,
+              '-kvi',
+              AZURE_CLIENT_ID!,
+              '-kvt',
+              AZURE_TENANT_ID!,
+              '-kvs',
+              AZURE_CLIENT_SECRET!,
+              '-kvc',
+              AZURE_CERT_NAME!,
+              '-tr',
+              'http://timestamp.digicert.com',
+              '-v',
+              msiArtifact!,
+              '-d',
+              AZURE_DESCRIPTION!,
+            ])
+          ).stdout
+        );
       }
 
       await uploadReleaseAssets(releaseId, artifacts);
