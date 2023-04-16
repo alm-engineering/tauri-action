@@ -159,7 +159,7 @@ async function run(): Promise<void> {
 
         const msiArtifact = artifacts.find((artifact) =>
           artifact.path.endsWith('msi')
-        );
+        )?.path;
 
         const {
           AZURE_KEY_VAULT_URI,
