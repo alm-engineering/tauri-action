@@ -161,6 +161,8 @@ async function run(): Promise<void> {
           artifact.path.endsWith('msi')
         )?.path;
 
+        console.log('msiArtifact', msiArtifact);
+
         const {
           AZURE_KEY_VAULT_URI,
           AZURE_CLIENT_ID,
@@ -176,7 +178,7 @@ async function run(): Promise<void> {
         );
 
         console.log('Signing msi...');
-        const signingCmd = `AzureSignTool sign -kvu "${AZURE_KEY_VAULT_URI!}" -kvi "${AZURE_CLIENT_ID!}" -kvt "${AZURE_TENANT_ID!}"-kvs "${AZURE_CLIENT_SECRET!}" -kvc "${AZURE_CERT_NAME!}" -tr http://timestamp.digicert.com -v "${msiArtifact}" -d "${AZURE_DESCRIPTION!}"`;
+        const signingCmd = `AzureSignTool sign -kvu ${AZURE_KEY_VAULT_URI!} -kvi ${AZURE_CLIENT_ID!} -kvt ${AZURE_TENANT_ID!}-kvs ${AZURE_CLIENT_SECRET!} -kvc ${AZURE_CERT_NAME!} -tr http://timestamp.digicert.com -v ${msiArtifact} -d ${AZURE_DESCRIPTION!}`;
         console.log('Signing command: ', signingCmd);
         console.log((await $`${signingCmd}`).stdout);
       }
